@@ -93,18 +93,40 @@ void MSGelementLire(ELEMENT_MSG * elt) {
         exit(0);
     }
 
+    smsTemp[strcspn(smsTemp, "\n")] = 0;
+
+    printf("\nTaille original : %ld",strlen(smsTemp) - 1);
+    printf("\nRetour de type_de_SMS : %d",type_de_SMS(smsTemp));
+    size_t length =  strlen(smsTemp) - 1 - type_de_SMS(smsTemp);
+    printf("\nTaille finale : %ld",length);
+
     //Taille de message
     size_t typeSMS;
-    if (type_de_SMS(smsTemp) != -1) {
+    if (type_de_SMS(smsTemp) != 0) {
         typeSMS = 67;
         // printf("\nSMS speciale");
     } else {
         typeSMS = 153;
         // printf("\nSMS standard");
-    }
-
+    } 
     //Nombre de SMS
-    double c = ceil(strlen(smsTemp) / typeSMS) + 1;
+    double fractpart,intpart,c;
+    if (type_de_SMS(smsTemp) != 0){
+        if (length <= 70) {
+            c = 1;
+        } else {
+            fractpart = modf(length / 67, &intpart);
+            c = intpart + (1 - fractpart);
+        }
+    } else {
+        if (length <= 160) {
+            c = 1;
+        } else {
+            fractpart = modf(length / 153, &intpart);
+            c = intpart + (1 - fractpart) ;
+        }
+    }
+    printf("\nTESTTT c = %f",c);
     if (c == 1) {
         if (typeSMS == 67) {
             typeSMS = 70;
@@ -121,18 +143,18 @@ void MSGelementLire(ELEMENT_MSG * elt) {
         SMSelementLire(&sms,smsTemp);
         SMSinserer(L,sms,1);
     } else {
-        printf("\nTESTTT c = %f",c);
         for (i = 1; i <= c; i++) {
             printf("\nTESTTT i = %d",i);
             sms = SMSelementCreer();
             // printf("\nTEST smsTEMP = \"%s\" la taille de ce message est : %ld",smsTemp,strlen(smsTemp));
-            strncpy(temp,smsTemp + p,typeSMS + 1);
-            temp[typeSMS + 1] = '\0';
+            strncpy(temp,smsTemp + p,typeSMS);
+            temp[typeSMS] = '\0';
+            temp[strcspn(temp, "\n")] = 0;
             // printf("\n|THIS IS A TEST temp = \"%s\"",temp);
             // printf("\n|THIS IS A TEST i = %d; Lenght(Temp) = %ld; Longueur d'un sms : %ld",i,strlen(temp),typeSMS);
             SMSelementLire(&sms,temp);
             SMSinserer(L,sms,i);
-            p += typeSMS + 1;
+            p += typeSMS;
         }
     }
     
@@ -146,19 +168,17 @@ void MSGelementAfficher(ELEMENT_MSG elt) {
     printf("\n--------");
     printf("\nAffichage de conversation est en cours... :");
     printf("%s ",elt->recepteur);
-    // SMSlisteAfficher(elt->msg);
-
-    /* test */
-    char * ch;
-    ch = (char *)malloc(sizeof(500));
+    SMSlisteAfficher(elt->msg);
+    /* test *
+    char ch[1225] = "";
     for (int i = 1; i <= SMSlisteTaille(elt->msg); i++) {
-        strcat(ch,elt->msg->elements[i]->text);
+        strncat(ch,elt->msg->elements[i]->text,elt->msg->elements[i]->taille + 1);
     }
     ch[strlen(ch)+1] = '\0';
-    /* test */
+     test 
     printf("\nMessage : %s",ch);
-    free(ch);
     printf("\n");
+    
     int typeSMS = -1;
     int i = 1; 
     do {
@@ -167,20 +187,49 @@ void MSGelementAfficher(ELEMENT_MSG elt) {
         }
         i++;
     } while (typeSMS == -1 && i <= SMSlisteTaille(elt->msg));
+    
     int nbrChar,nbrSMS = SMSlisteTaille(elt->msg);
     if (typeSMS == -1) {
         nbrChar = 153;
     } else {
         nbrChar = 67;
     }
+    double c = ceil(strlen(ch) / nbrChar) + 1;
     if (nbrSMS == 1) {
-        if (typeSMS == 67) {
-            typeSMS = 70;
+        if (nbrChar == 67) {
+            nbrChar = 70;
         } else {
-            typeSMS = 160;
+            nbrChar = 160;
         }
     }
     printf("(%d) - %d/%d ",nbrSMS,elt->msg->elements[SMSlisteTaille(elt->msg)]->taille + (nbrChar * (nbrSMS - 1)),nbrChar*nbrSMS);
+    */
+    int somme = 0;
+    for (int k = 1; k <= SMSlisteTaille(elt->msg); k++) {
+        somme += elt->msg->elements[k]->taille;
+    }
+    printf("\nNombre de caracters : %d",somme);
+    char ch[somme + 1];
+    for (int i = 1; i <= SMSlisteTaille(elt->msg); i++) {
+        strncat(ch,elt->msg->elements[i]->text,elt->msg->elements[i]->taille + 1);
+    }
+    ch[somme + 2] = '\0';
+
+    int nbrChar,type_de_sms_var = 0;
+    type_de_sms_var = type_de_SMS(ch);
+    if(type_de_sms_var != 0) {
+        nbrChar = 70;
+        if (SMSlisteTaille(elt->msg) != 1) {
+            nbrChar = 67;
+        }
+    } else {
+        nbrChar = 160;
+        if (SMSlisteTaille(elt->msg) != 1) {
+            nbrChar = 153;
+        }
+    }
+    printf("\n(%d), %d/%d ",SMSlisteTaille(elt->msg),somme,nbrChar * SMSlisteTaille(elt->msg));
+
     heureAffichage(elt->heure_envoi);
     printf(" | ");
     dateAffichage(elt->date_envoi);

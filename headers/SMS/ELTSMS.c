@@ -28,13 +28,15 @@ void SMSelementCopier(ELEMENT_SMS * e1, ELEMENT_SMS e2) {
 void SMSelementLire(ELEMENT_SMS * elt, char * smsTemp) {
     size_t len = strlen(smsTemp);
     (*elt)->text = (char *)malloc(len + 1);
-    strncpy((*elt)->text,smsTemp,len + 1);
-    (*elt)->taille = strlen(smsTemp) - 1;
+    strncpy((*elt)->text,smsTemp,len);
+    int type_de_sms_var = 0;
+    type_de_sms_var = type_de_SMS((*elt)->text);
+    (*elt)->taille = strlen(smsTemp) - type_de_sms_var; /* fama faza ki dji tehseb taille mtaa sms speciale l caracter special lezmou yethseb 1 barka lel 3inin */
 }
 
 void SMSelementAfficher(ELEMENT_SMS elt) {
     printf("\n");
-    printf("Texte : %s \nTaille : %d", elt->text, elt->taille);
+    printf("Texte : -%s- \nTaille : %d", elt->text, elt->taille);
     printf("\n");
 }
 

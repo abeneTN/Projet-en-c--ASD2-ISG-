@@ -27,7 +27,7 @@ void SMSlisteDetruire(LISTE_SMS L)
     {
         SMSelementDetruire(L->elements[i]);
     } 
-   free(L);   
+    free(L); 
 }
 
 

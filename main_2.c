@@ -3,7 +3,7 @@
 #include <malloc.h>
 #include <string.h>
 #include <math.h>
-#include <sys/resource.h>
+
 
 #include "headers/SDD.h"
 
@@ -26,7 +26,7 @@ int motJamaisTraite(char mot[], TABLEAU_COMPARISON T, int n);
 
 
 int main(void) {
-    // setrlimit(2,2);
+    
     // SetConsoleOutputCP(GetACP());
     // SetConsoleCP(GetACP());
     // setlocale(LC_ALL, "");
@@ -331,8 +331,9 @@ int main(void) {
                     printf("\nErreur");
                     exit(0);
                 }
-                line[strcspn(line, "\n")] = 0;
                 do {
+                    // printf("\nUn contact est en cours d'ajout");
+                    // printf("\n%s",line);
                     plus = 0;
                     contact = CONTelementCreer();
                     strncpy(contact->nom,line,slashPos(line));
@@ -345,7 +346,6 @@ int main(void) {
                     plus += size + 1;
                     strcpy(contact->email,line + plus);
                     size = strlen(contact->email);
-                    contact->email[strcspn(contact->email, "\n")] = 0;
                     contact->email[size] = '\0';
                     CONTinserer(repertoire,contact);
                     if(!fgets(line,100,file)) {
@@ -357,16 +357,16 @@ int main(void) {
                 } while (strncmp(line,"#END#",4) != 0);
                 printf("\n\nRéprtoire ready!\n\n");
                 while (!feof(file)) {
-                    printf("\nUn nouveau message en cours d'ajout");
+                    // printf("\nUn nouveau message en cours d'ajout");
                     // printf("\nTEST MSGelementCreer()");
                     message = MSGelementCreer();
                     // printf("\nTEST MSGelementCreer() VALIDE");
+                    fflush(stdin);
                     if(!fgets(line,1224,file)) {
                         printf("\nErreur");
                         exit(0);
                     }
-                    line[strcspn(line, "\n")] = 0;
-
+                    
                     size = strlen(line);
                     if(line[size-1] == '\n'){
                         line[size-1] = 0;
@@ -410,14 +410,14 @@ int main(void) {
                     plus += 3;
 
                     strcpy(smsTemp,line + plus);
-                    size = strlen(smsTemp);
+                    
                     printf("\n-%s-",smsTemp);
 
                     //Insertion de message
                     LISTE_SMS L = SMSlisteCreer();
 
-                    size_t typeSMS,length =  strlen(smsTemp) - 1 - type_de_SMS(smsTemp);
-                    if (type_de_SMS(smsTemp) != 0) {
+                    size_t typeSMS;
+                    if (type_de_SMS(smsTemp) != -1) {
                         typeSMS = 67;
                         // printf("\nSMS speciale");
                     } else {
@@ -425,24 +425,10 @@ int main(void) {
                         // printf("\nSMS standard");
                     }
                     //Nombre de SMS
-                    double fractpart,intpart,c;
-                    if (type_de_SMS(smsTemp) != 0){
-                        if (length <= 70) {
-                            c = 1;
-                        } else {
-                            fractpart = modf(length / 67, &intpart);
-                            c = intpart + (1 - fractpart);
-                        }
-                    } else {
-                        if (length <= 160) {
-                            c = 1;
-                        } else {
-                            fractpart = modf(length / 153, &intpart);
-                            c = intpart + (1 - fractpart) ;
-                        }
-                    }
-                    printf("\nTESTTT c = %f",c);
+                    // printf("\nL'Operation : %ld / %ld", strlen(smsTemp), typeSMS);
+                    double c = ceil(strlen(smsTemp) / typeSMS) + 1;
                     if (c == 1) {
+                        // printf("\nMessage barka");
                         if (typeSMS == 67) {
                             typeSMS = 70;
                         } else {
@@ -457,19 +443,18 @@ int main(void) {
                         SMSelementLire(&sms,smsTemp);
                         SMSinserer(L,sms,1);
                     } else {
-                        // printf("\nTESTTT c = %f",c);+
+                        // printf("\nTESTTT c = %f",c);
                         for (i = 1; i <= c; i++) {
                             // printf("\nTESTTT i = %d",i);
                             sms = SMSelementCreer();
                             // printf("\nTEST smsTEMP = \"%s\" la taille de ce message est : %ld",smsTemp,strlen(smsTemp));
-                            strncpy(temp,smsTemp + p,typeSMS);
-                            temp[typeSMS] = '\0';
-                            temp[strcspn(temp, "\n")] = 0;
+                            strncpy(temp,smsTemp + p,typeSMS + 1);
+                            temp[typeSMS + 1] = '\0';
                             // printf("\n|THIS IS A TEST temp = \"%s\"",temp);
                             // printf("\n|THIS IS A TEST i = %d; Lenght(Temp) = %ld; Longueur d'un sms : %ld",i,strlen(temp),typeSMS);
                             SMSelementLire(&sms,temp);
                             SMSinserer(L,sms,i);
-                            p += typeSMS;
+                            p += typeSMS + 1;
                         }
                     }
                     message->msg = L;
@@ -501,8 +486,8 @@ CONTACT lePlusContacte (LISTE_MSG liste_message, LISTE_CONT liste_contact) {
             contact_element = CONTrecuperer(liste_contact,i);
             // printf("\n Le contact a tester (numero : %d)",i);
             // CONTelementAfficher(contact_element);
-            char numero_repertoire[9] = "";
-            strncpy(numero_repertoire,contact_element->numero,9);
+            char numero_repertoire[9];
+            strcpy(numero_repertoire,contact_element->numero);
             // printf("\nLe numero de ce contact : %s ",numero_repertoire);
             // printf("\n--------------FIN TEST contact--------------\n");
             //Mainetenant on a un contact et son numero
@@ -612,10 +597,8 @@ int motJamaisTraite(char * mott, TABLEAU_COMPARISON T , int n) {
         printf("\nCherchons tableau vide");
         return 1;
     }
-    size_t length;
     for (int i = 0; i <= n; i++) {
-        length = strlen(T->elements[i]->mot);
-        if (strncmp(T->elements[i]->mot, mott, length) == 0) {
+        if (strcmp(T->elements[i]->mot, mott) == 0) {
             return 0;
         }
     };
@@ -696,13 +679,13 @@ Pile unigrammes(LISTE_MSG L,int M) {
 
 Pile bigrammes(LISTE_MSG L, int M) {
     printf("\nCA COMMENCE !");
-    char * motToken1; char * motToken2;
+    char * motToken1; char * motToken2; char *lineJump;
     char doubleToken[30] ;
     char * message;
     char mott[30];
     NOEUD_MSG h;
     //Tableau de comparaison
-    TABLEAU_COMPARISON T2 = comparaisonTableauCreer();
+    TABLEAU_COMPARISON T = comparaisonTableauCreer();
     infoMot mmot;
     int iT = 0, trouveT; /* Indice utilisé pour le recherche d'un mot dans T*/
     h = L->tete;
@@ -711,11 +694,7 @@ Pile bigrammes(LISTE_MSG L, int M) {
     size_t k,k_stop;
     do {
         message = smsTogether(h->info->msg);
-        // message[strcspn(message, "\0")] = ' ' ;
-        // message[strcspn(message, " ") + 1] = '\0';
         strncat(message," ",2);
-        // strncat(message,"\0",2);
-        message[strcspn(message, "\n")] = 0;
         printf("\nmessage complet : -%s- -%ld-",message,strlen(message));
         k_stop = strlen(message) - 1;
         printf("\n\n");
@@ -736,22 +715,22 @@ Pile bigrammes(LISTE_MSG L, int M) {
             printf("\nToken 2 : -%s-",motToken2);
             printf("\ndouble Token : -%s-",doubleToken);
             printf("\nk = %ld",k);
-            if (motJamaisTraite(doubleToken,T2,T2->lg) == 1) {
+            if (motJamaisTraite(doubleToken,T,T->lg) == 1) {
                 //Ajout dans la tableau de comparaison
                 mmot = infoMotCreer();
                 strcpy(mmot->mot,doubleToken);
                 mmot->occ = 1;
-                insererTableau(T2,mmot);
+                insererTableau(T,mmot);
             } else {
                 //Le mot est deja recontré donc on le cherche dans T et on ajout +1 à l'occurence
                 trouveT = 0; iT = 1;
                 do {
-                    if (strcmp(T2->elements[iT]->mot,doubleToken) == 0) {
-                        T2->elements[iT]->occ++;
+                    if (strcmp(T->elements[iT]->mot,doubleToken) == 0) {
+                        T->elements[iT]->occ++;
                         trouveT = 1; // Mot trouvé
                     }
                     iT++;
-                } while(iT <= T2->lg && trouveT == 0);
+                } while(iT <= T->lg && trouveT == 0);
             }
             motToken1 = motToken2; 
             if(k == k_stop) {
@@ -759,7 +738,13 @@ Pile bigrammes(LISTE_MSG L, int M) {
                 break;
             } else {
                 motToken2 = strtok(NULL," ");
+                printf("\n AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA -%s-",lineJump);
                 printf("\n motToken2 = -%s-",motToken2);
+                lineJump = strrchr(motToken2,'\n');
+                printf("\n AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA -%s-",lineJump);
+                if (lineJump != NULL){
+                    printf("\bBRAHMET BOUK KOLI MARA JEYA");
+                }
                 k += strlen(motToken2) + 1;
             }
             printf("\n -%s-",motToken2);
@@ -768,12 +753,11 @@ Pile bigrammes(LISTE_MSG L, int M) {
             strncat(doubleToken,motToken2,strlen(motToken2)+1);
             printf("\nK = %ld",k);
         };
-        free(message);
         h = h->suivant;
     } while(h);
 
-    trieeTableau(T2,T2->lg);
-    afficherTableau(T2,T2->lg);
+    afficherTableau(T,T->lg);
+    // trieeTableau(T,T->lg);
     // afficherTableau(T,T->lg);
 
     Pile p = PileCreer();
@@ -781,11 +765,9 @@ Pile bigrammes(LISTE_MSG L, int M) {
 
     for (int i = 1; i <= M; i++) {
         e = elementCreer_PILE();
-        memmove(e->texte,T2->elements[i]->mot,strlen(T2->elements[i]->mot) + 1); 
+        memmove(e->texte,T->elements[i]->mot,strlen(T->elements[i]->mot) + 1); 
         Empiler(p,e);
     }
-
-    // tableauDetruire(T,T->lg);
 
     Pile pTemp = PileCreer();
     for (int j = 1; j <= M; j++) {
@@ -795,8 +777,9 @@ Pile bigrammes(LISTE_MSG L, int M) {
     }
 
     PileDetruire(p);
-    // free(T);
-    // free(mmot);
+    free(T);
+    free(mmot);
 
     return pTemp;
+
 }

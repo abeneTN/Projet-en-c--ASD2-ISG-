@@ -152,11 +152,13 @@ void CONTlisteAfficher(LISTE_CONT L)
     int i = 1;
     NOEUD_CONT p;
     p = L->tete;
+    printf("+--------------------------------------");
     for (i = 1; i <= L->lg; i++)
     {
         CONTelementAfficher(p->info);
         p = p->suivant;
     }
+    printf("---------------------------------------");
     if (CONTlisteTaille(L) == 0)
     {
         printf("\nAucun contact trouve.\n");

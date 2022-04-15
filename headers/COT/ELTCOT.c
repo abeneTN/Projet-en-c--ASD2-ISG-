@@ -34,8 +34,10 @@ void CONTelementLire(ELEMENT_CONT * elt) {
         printf("\nErreur");
         exit(0);
     }
+    (*elt)->nom[strcspn((*elt)->nom, "\n")] = 0;
     char * formated = firstLetterUppercase((*elt)->nom);
-    memmove((*elt)->nom,formated,( strlen(formated) + 1 ) * sizeof( char ) );
+    size_t size = strlen(formated);
+    memmove((*elt)->nom,formated,( size + 1 ) * sizeof( char ) );
     int test = 0;
     do {
         clearBuffer();
@@ -54,8 +56,10 @@ void CONTelementLire(ELEMENT_CONT * elt) {
         } else {
             printf("\nLe numero de desitinataire doit commence avec 2,5 ou 9 et contient 8 chiffres");
         }
-    } while (strlen((*elt)->numero) != 8 || test == 0);
-    int i, flag = 0, length;
+        size = strlen((*elt)->numero);
+    } while (size != 8 || test == 0);
+    (*elt)->numero[strcspn((*elt)->numero, "\n")] = 0;
+    int i, flag = 0;
     do {
         clearBuffer();
         printf("\nSasisir l'email : ");
@@ -63,27 +67,29 @@ void CONTelementLire(ELEMENT_CONT * elt) {
             printf("\nErreur");
             exit(0);
         }
-        length = strlen((*elt)->email);
-        for (i = 0; i <= length; i++) {
+        size = strlen((*elt)->email);
+        for (i = 0; i <= size; i++) {
             if ((*elt)->email[i] == '@') {
                 flag = i;
                 break;
             }
         }
     } while (flag == 0);
+    (*elt)->email[strcspn((*elt)->email, "\n")] = 0;
     printf("\nContact enrigistree!");
 }
 
 void CONTelementAfficher(ELEMENT_CONT elt) {
     printf("---------------------------------------");
-    printf("\nNom : %s Numero : %s\nEmail : %s", elt->nom, elt->numero, elt->email);
-    printf("\n---------------------------------------");
+    printf("\n|Nom : -%s- Numero : -%s-\n|Email : -%s-", elt->nom, elt->numero, elt->email);
+    printf("\n+--------------------------------------");
 }
 
 int CONTelementComparer(ELEMENT_CONT e1, ELEMENT_CONT e2) {
-    if (strcmp(e1->nom,e2->nom) != 0) {
-        return strcmp(e1->nom,e2->nom);
+    int diffNom = strcmp(e1->nom,e2->nom), diffNum = strcmp(e1->numero,e2->numero);  
+    if (diffNom != 0) {
+        return diffNom;
     } else {
-        return strcmp(e1->numero,e2->numero);
+        return diffNum;
     }
 }

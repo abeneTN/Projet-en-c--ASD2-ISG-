@@ -25,7 +25,7 @@ void afficherTableau(TABLEAU_COMPARISON T, int n);
 void trieeTableau(TABLEAU_COMPARISON T, int n);
 //Use it before fgets();
 void clearBuffer();
-//Look for a special character
+//Look for a special character return 0 if standard
 int type_de_SMS(char []);
 //Make every first letter uppdercase
 char * firstLetterUppercase(char []);
@@ -33,6 +33,10 @@ char * firstLetterUppercase(char []);
 int slashPos(char ch[]);
 //Postion d'esapce
 int espacePos(char ch[]);
+//Detruire une strucutre mot
+void infoMotDetruire(infoMot m);
+//Detruire le tableau
+void tableauDetruire(TABLEAU_COMPARISON T, int n);
 
 #include "SMS/SDD_SMS.h"
 #include "MSG/SDD_MSG.h"

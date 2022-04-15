@@ -221,6 +221,7 @@ void MSGlisteAfficher(LISTE_MSG L)
         for (i = 1; i <= L->lg; i++)
         {
             MSGelementAfficher(p->info);
+            
             p = p->suivant;
         }
     }

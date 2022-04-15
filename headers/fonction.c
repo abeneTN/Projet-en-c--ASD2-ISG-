@@ -12,22 +12,25 @@ void clearBuffer() {
 }
 
 int type_de_SMS(char ch[] ) {
-    char khra[10] = "çœ";
-    int i,z,y, flag = -1, length;
-    length = strlen(khra)-1;
-    for (i = 0; i <= length; i++) {
+    char khra[20] = "çœàéè";
+    int i,z1,z2,y1,y2, flag = 0;
+    size_t j,length2 = 0,length = 0;
+    length = strlen(khra);
+    length2 = strlen(ch);
+    for (i = 0; i <= length; i+=2) {
         // printf("\n le caracter a tester de khra %c", khra[i]);
-        z = (int)(khra[i]);
-        for (size_t j = 0; j <= strlen(ch)-1; j++) {
+        z1 = (int)(khra[i]);
+        z2 = (int)(khra[i+1]);
+        for (j = 0; j <= length2 - 1; j++) {
             // printf("\n le caracter a tester de ch %c", ch[j]);
-            y = (int)(ch[j]);
-            if (y == z) {
-                flag = i;
-                // printf("\n\n\n\n\n\nWELEYE\n\n\n\n\n\n");
-                break;
+            y1 = (int)(ch[j]);
+            y2 = (int)(ch[j+1]);
+            if (y1 == z1 && y2 == z2) {
+                /*special character found*/
+                flag++;
+                j++;
             }
         }
-        
         // printf("\n le numero est : %d",z);
         // printf("\n le numero est : %d\n",y);  
     }
@@ -54,13 +57,14 @@ char * firstLetterUppercase(char ch[]) {
 char * smsTogether(LISTE_SMS L) {
     int somme = 0;
     for (int k = 1; k <= SMSlisteTaille(L); k++) {
-        somme += L->elements[k]->taille;
+        somme += strlen(L->elements[k]->text);
     }
+    printf("\nNombre de caracters : %d",somme);
     char * ch = calloc(1,somme + 1);
     for (int i = 1; i <= SMSlisteTaille(L); i++) {
-        strcat(ch,L->elements[i]->text);
+        strncat(ch,L->elements[i]->text,strlen(L->elements[i]->text));
     }
-    ch[somme + 1] = '\0';
+    ch[somme + 2] = '\0';
     return (char * ) ch;
 }
 
@@ -129,9 +133,9 @@ TABLEAU_COMPARISON comparaisonTableauCreer(void) {
 void insererTableau(TABLEAU_COMPARISON T, infoMot m) {
     printf("\n\n\nAjout dans le tableau est en cours..");
     T->lg++;
+    printf("\nT->lg = %d",T->lg);
     T->elements[T->lg] = m;
-
-    printf("\nMot ajouté dans le tableau: %s",T->elements[0]->mot);
+    printf("; Mot ajouté dans le tableau: -%s-\n\n",T->elements[T->lg]->mot);
 }
 
 void afficherTableau(TABLEAU_COMPARISON T, int n) {
@@ -151,16 +155,27 @@ void swap(infoMot m1,infoMot m2) {
 void trieeTableau(TABLEAU_COMPARISON T, int n) {
     int tri = 1, j;
     infoMot elementTemp;
-    do {
-        tri = 1;
+    while (tri == 1) {
+        tri = 0;
         for (j = 1; j <= n-1; j++) {
             if (T->elements[j]->occ < T->elements[j+1]->occ){
                 elementTemp = T->elements[j];
                 T->elements[j] = T->elements[j+1];
                 T->elements[j+1] = elementTemp; 
-                tri = 0;
+                tri = 1;
             }
         }
-    } while (tri == 0);
+    }
        
+}
+
+void infoMotDetruire(infoMot m) {
+    free(m);
+}
+
+void tableauDetruire(TABLEAU_COMPARISON T, int n) {
+    for (int i = 1; i <= n; i++) {
+        infoMotDetruire(T->elements[i]);
+    }
+    free(T);
 }
