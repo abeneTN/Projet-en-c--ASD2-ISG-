@@ -116,7 +116,7 @@ infoMot infoMotCreer(void) {
 TABLEAU_COMPARISON comparaisonTableauCreer(void) {
     TABLEAU_COMPARISON T;
     T = (TABLEAU_COMPARISON)malloc(sizeof(structureListeComp));
-    for(int i = 0; i<= max;i++) {
+    for(int i = 1; i<= max;i++) {
         infoMot T = (infoMot)malloc(sizeof(infoMotStruct));
     }
     if (!T) {

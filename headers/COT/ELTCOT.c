@@ -27,9 +27,9 @@ void CONTelementCopier(ELEMENT_CONT * e1, ELEMENT_CONT e2) {
 
 void CONTelementLire(ELEMENT_CONT * elt) {
     printf("\nEnregistrement d'un nouveau contact est en cours...");
-    printf("\nSaisir le Nom : ");
     // while(getchar() != '\n'); //Better way to clear the buffer
     clearBuffer();
+    printf("\nSaisir le Nom : ");
     if(!fgets((*elt)->nom,50,stdin)){
         printf("\nErreur");
         exit(0);

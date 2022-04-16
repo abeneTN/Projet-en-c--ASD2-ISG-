@@ -32,7 +32,7 @@ int main(void) {
     // setlocale(LC_ALL, "");
     // fputws(L"\u00E9\n", stdout);
     DATE D1 ,D2 ;
-    int choix;
+    int choix,m;
     LISTE_CONT repertoire = CONTlisteCreer(),contTemp;
     ELEMENT_CONT contact;
     LISTE_MSG bote_de_messagerie = MSGlisteCreer();
@@ -106,14 +106,14 @@ int main(void) {
             }
             break;
         case 4: 
-            printf("\nListe de contact jamais contactes : ");
+            printf("\nListe de contact jamais contactes : \n");
             if (CONTlisteTaille(repertoire) == 0) {
                 printf("\nAucun contact enrigistré(e) dans le repertoire");
             } else {
                 contTemp = jamaisContactes(bote_de_messagerie,repertoire);
                 CONTlisteAfficher(contTemp);
             }
-            CONTlisteDetruire(contTemp);
+            // CONTlisteDetruire(contTemp);
             break;
         case 5:
             message = MSGelementCreer();
@@ -171,15 +171,19 @@ int main(void) {
             } else {
                 message = messageLePlusLong(bote_de_messagerie);
                 MSGelementAfficher(message);
-                MSGelementDetruire(message);
+                // MSGelementDetruire(message);
             }
             break;
         case 9: 
-            p = unigrammes(bote_de_messagerie,3);
+            printf("\nSasir m : ");
+            scanf("%d",&m);
+            p = unigrammes(bote_de_messagerie,m);
             PileAfficher(p);
             break;
         case 10:
-            pb = bigrammes(bote_de_messagerie,3);
+            printf("\nSasir m : ");
+            scanf("%d",&m);
+            pb = bigrammes(bote_de_messagerie,m);
             PileAfficher(pb);
             break;
         case 11 :
@@ -416,7 +420,7 @@ int main(void) {
                     //Insertion de message
                     LISTE_SMS L = SMSlisteCreer();
 
-                    size_t typeSMS,length =  strlen(smsTemp) - 1 - type_de_SMS(smsTemp);
+                    size_t typeSMS,length =  strlen(smsTemp) - type_de_SMS(smsTemp);
                     if (type_de_SMS(smsTemp) != 0) {
                         typeSMS = 67;
                         // printf("\nSMS speciale");
@@ -450,26 +454,77 @@ int main(void) {
                         }
                     }
                     c = (int)(c);
-                    int p = 0;
-                    char temp[typeSMS + 1];
+                    
+                    char temp[typeSMS + 10];
                     if(c == 1) {
                         sms = SMSelementCreer();
                         SMSelementLire(&sms,smsTemp);
                         SMSinserer(L,sms,1);
                     } else {
-                        // printf("\nTESTTT c = %f",c);+
-                        for (i = 1; i <= c; i++) {
-                            // printf("\nTESTTT i = %d",i);
+                        int c1,c2,k1,k2;
+                        int j,charFound = 0;
+                        int pq = 0;
+                        char carSpe[50] = "çœàéè";
+                        int nb_car_spe = 0,nb_car_a_copier = 0;
+                        for (int pos = 1; pos <= c; pos++) {
+                            memset(temp,0,strlen(temp));
                             sms = SMSelementCreer();
-                            // printf("\nTEST smsTEMP = \"%s\" la taille de ce message est : %ld",smsTemp,strlen(smsTemp));
-                            strncpy(temp,smsTemp + p,typeSMS);
-                            temp[typeSMS] = '\0';
+                            nb_car_spe = 0;
+                            nb_car_a_copier = 0;
+                            j = 0;
+                            while(nb_car_a_copier < typeSMS && pq < strlen(smsTemp)) {
+                                charFound = 0;
+                                c1 = (int)(smsTemp[j+pq]);
+                                c2 = (int)(smsTemp[j+pq+1]);
+                                for (i = 0; i <= strlen(carSpe); i+=2){
+                                    k1 = (int)(carSpe[i]);
+                                    k2 = (int)(carSpe[i+1]);
+                                    if (c1 == k1 && c2 == k2 && charFound == 0){
+                                        strncat(temp,smsTemp + j + pq ,2);
+                                        j+=2;
+                                        charFound = 1;
+                                        nb_car_spe++;
+                                        nb_car_a_copier++;
+                                    } 
+                                }
+                                if (charFound == 0) {
+                                    strncat(temp,smsTemp + j + pq,1);
+                                    j++;
+                                    nb_car_a_copier++;
+                                }
+                                /* lezem kol caractere men smsTemp nchoufou speciale wala le 
+                                donc lezemni kol caracter naamel parcours mteouu al carSpe */
+                            }
+                        
+                            printf("\n nb_car_a_copier = %d",nb_car_a_copier);
+                            pq += nb_car_a_copier + nb_car_spe;
+                            /*
+                            while (i <= typeSMS && somme != typeSMS) {
+                                c1 = (int)(smsTemp[i]);
+                                c2 = (int)(smsTemp[i+1]);
+                                for (j = 0; j < strlen(carSpe);j+=2) {
+                                    k1 = (int)(carSpe[j]);
+                                    k2 = (int)(carSpe[j+1]);
+                                    if (c1 == k1 && c2 == k2){
+                                        strncat(temp,smsTemp + i,2);
+                                        i++;
+                                        somme++;
+                                    } else {
+                                        strncat(temp,smsTemp + i,1);
+                                        
+                                    }
+                                }
+                                i++;
+                            }
+                            i += somme + 1 + typeSMS;
+                            */
+                            // typeSMS += nb_car_a_copier;
+                            temp[strlen(temp)] = '\0';
                             temp[strcspn(temp, "\n")] = 0;
-                            // printf("\n|THIS IS A TEST temp = \"%s\"",temp);
-                            // printf("\n|THIS IS A TEST i = %d; Lenght(Temp) = %ld; Longueur d'un sms : %ld",i,strlen(temp),typeSMS);
+                            printf("\n\n|THIS IS A TEST temp = \"%s\"",temp);
                             SMSelementLire(&sms,temp);
-                            SMSinserer(L,sms,i);
-                            p += typeSMS;
+                            SMSinserer(L,sms,pos);
+                            // p += typeSMS + somme;
                         }
                     }
                     message->msg = L;
@@ -548,9 +603,11 @@ LISTE_CONT jamaisContactes(LISTE_MSG liste_message, LISTE_CONT liste_contact) {
         printf("\nAucun contact trouve.");
     } else {
         for(int i = 1; i <= CONTlisteTaille(liste_contact); i++) {
-            contact_element = CONTrecuperer(liste_contact,i);
+            contact_element = CONTelementCreer();
+            CONTelementCopier(&contact_element,CONTrecuperer(liste_contact,i));
+            // contact_element = CONTrecuperer(liste_contact,i);
             char numero_repertoire[9];
-            memmove(numero_repertoire,contact_element->numero,9);
+            strncpy(numero_repertoire,contact_element->numero,9);
             j = 1; trouve = 0;
             do {
                 msg_element = MSGrecuperer(liste_message,j);
@@ -588,22 +645,25 @@ ELEMENT_MSG messageLePlusLong(LISTE_MSG liste_message) {
     printf("\n");
     ELEMENT_MSG pluslong;
     printf("\n");
-    int j; long n;
+    int j,somme = 0; long n;
     n = 0;
     if (MSGlisteTaille(liste_message) == 0) {
         return e;
     } else {
         for (int i = 1; i <= MSGlisteTaille(liste_message); i++) {
+            somme = 0;
             e = MSGrecuperer(liste_message,i);
             for (j = 1; j <= SMSlisteTaille(e->msg); j++) {
-                if (e->msg->elements[j]->taille > n) {
-                    n = e->msg->elements[j]->taille;
-                    MSGelementAffecter(&pluslong,e);
-                }
+                somme += e->msg->elements[j]->taille; 
             } 
+            if (somme > n) {
+                n = somme;
+                pluslong = e;
+                // MSGelementAffecter(&pluslong,e);
+            }
         }
     }
-    MSGelementDetruire(e);
+    // MSGelementDetruire(e);
     return pluslong;
 }
 
@@ -613,7 +673,7 @@ int motJamaisTraite(char * mott, TABLEAU_COMPARISON T , int n) {
         return 1;
     }
     size_t length;
-    for (int i = 0; i <= n; i++) {
+    for (int i = 1; i <= n; i++) {
         length = strlen(T->elements[i]->mot);
         if (strncmp(T->elements[i]->mot, mott, length) == 0) {
             return 0;
@@ -645,15 +705,14 @@ Pile unigrammes(LISTE_MSG L,int M) {
             if (motJamaisTraite(motToken,T,T->lg) == 1) {
                 //Ajout dans la tableau de comparaison
                 mmot = infoMotCreer();
-                printf("\nsizeOf(mmot) = %lu",sizeof(infoMot));
-                printf("\nsizeOf(mmot) = %lu",sizeof(TABLEAU_COMPARISON));
                 strcpy(mmot->mot,motToken);
                 mmot->occ = 1;
                 insererTableau(T,mmot);
+                printf("\nMot ajouté !!!");
             } else {
                 //Le mot est deja recontré donc on le cherche dans T et on ajout +1 à l'occurence
                 printf("\nMot trouvé");
-                trouveT = 0; iT = 0;
+                trouveT = 0; iT = 1;
                 do {
                     if (strcmp(T->elements[iT]->mot,motToken) == 0) {
                         T->elements[iT]->occ++;
@@ -668,7 +727,7 @@ Pile unigrammes(LISTE_MSG L,int M) {
         p = p->suivant;
     } while(p);
 
-    // trieeTableau(T,T->lg);
+    trieeTableau(T,T->lg);
     afficherTableau(T,T->lg);
 
     Pile P = PileCreer();
@@ -703,7 +762,7 @@ Pile bigrammes(LISTE_MSG L, int M) {
     NOEUD_MSG h;
     //Tableau de comparaison
     TABLEAU_COMPARISON T2 = comparaisonTableauCreer();
-    infoMot mmot;
+    infoMot mmot2;
     int iT = 0, trouveT; /* Indice utilisé pour le recherche d'un mot dans T*/
     h = L->tete;
 
@@ -738,10 +797,10 @@ Pile bigrammes(LISTE_MSG L, int M) {
             printf("\nk = %ld",k);
             if (motJamaisTraite(doubleToken,T2,T2->lg) == 1) {
                 //Ajout dans la tableau de comparaison
-                mmot = infoMotCreer();
-                strcpy(mmot->mot,doubleToken);
-                mmot->occ = 1;
-                insererTableau(T2,mmot);
+                mmot2 = infoMotCreer();
+                strcpy(mmot2->mot,doubleToken);
+                mmot2->occ = 1;
+                insererTableau(T2,mmot2);
             } else {
                 //Le mot est deja recontré donc on le cherche dans T et on ajout +1 à l'occurence
                 trouveT = 0; iT = 1;
@@ -796,7 +855,7 @@ Pile bigrammes(LISTE_MSG L, int M) {
 
     PileDetruire(p);
     // free(T);
-    // free(mmot);
+    // free(mmot2);
 
     return pTemp;
 }

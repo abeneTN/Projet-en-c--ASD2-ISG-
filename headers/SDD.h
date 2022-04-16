@@ -1,6 +1,6 @@
 #ifndef SDD_h
 #define SDD_h
-#define max 100
+#define max 1000
 /* Déclaration de infoMot une structure pour suivre l'occurences des mots */
 
 typedef struct infoMotStruct{
