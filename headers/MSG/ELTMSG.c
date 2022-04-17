@@ -143,19 +143,70 @@ void MSGelementLire(ELEMENT_MSG * elt) {
         SMSelementLire(&sms,smsTemp);
         SMSinserer(L,sms,1);
     } else {
-        for (i = 1; i <= c; i++) {
-            printf("\nTESTTT i = %d",i);
+        // for (i = 1; i <= c; i++) {
+        //     printf("\nTESTTT i = %d",i);
+        //     sms = SMSelementCreer();
+        //     // printf("\nTEST smsTEMP = \"%s\" la taille de ce message est : %ld",smsTemp,strlen(smsTemp));
+        //     strncpy(temp,smsTemp + p,typeSMS);
+        //     temp[typeSMS] = '\0';
+        //     temp[strcspn(temp, "\n")] = 0;
+        //     // printf("\n|THIS IS A TEST temp = \"%s\"",temp);
+        //     // printf("\n|THIS IS A TEST i = %d; Lenght(Temp) = %ld; Longueur d'un sms : %ld",i,strlen(temp),typeSMS);
+        //     SMSelementLire(&sms,temp);
+        //     SMSinserer(L,sms,i);
+        //     p += typeSMS;
+        // }
+        int c1,c2,k1,k2;
+        int j,charFound = 0;
+        int pq = 0;
+        char carSpe[50] = "çœàéè";
+        int nb_car_spe = 0,nb_car_a_copier = 0;
+        for (int pos = 1; pos <= c; pos++) {
+            memset(temp,0,strlen(temp));
             sms = SMSelementCreer();
-            // printf("\nTEST smsTEMP = \"%s\" la taille de ce message est : %ld",smsTemp,strlen(smsTemp));
-            strncpy(temp,smsTemp + p,typeSMS);
-            temp[typeSMS] = '\0';
+            nb_car_spe = 0;
+            nb_car_a_copier = 0;
+            j = 0;
+            while(nb_car_a_copier < typeSMS && pq < strlen(smsTemp)) {
+                if (smsTemp[pq + j] == '\0'){
+                    printf("\nsmsTemp est finie");
+                    break;
+                }
+                charFound = 0;
+                c1 = (int)(smsTemp[j+pq]);
+                c2 = (int)(smsTemp[j+pq+1]);
+                for (i = 0; i <= strlen(carSpe); i+=2){
+                    k1 = (int)(carSpe[i]);
+                    k2 = (int)(carSpe[i+1]);
+                    if (c1 == k1 && c2 == k2 && charFound == 0){
+                        strncat(temp,smsTemp + j + pq ,2);
+                        j+=2;
+                        charFound = 1;
+                        nb_car_spe++;
+                        nb_car_a_copier++;
+                    } 
+                }
+                if (charFound == 0) {
+                    strncat(temp,smsTemp + j + pq,1);
+                    strcat(temp,"\0");
+                    j++;
+                    nb_car_a_copier++;
+                }
+                /* lezem kol caractere men smsTemp nchoufou speciale wala le 
+                donc lezemni kol caracter naamel parcours mteouu al carSpe */
+                
+            }
+        
+            printf("\n nb_car_a_copier = %d",nb_car_a_copier);
+            pq += nb_car_a_copier + nb_car_spe;
+            temp[strlen(temp)] = '\0';
             temp[strcspn(temp, "\n")] = 0;
-            // printf("\n|THIS IS A TEST temp = \"%s\"",temp);
-            // printf("\n|THIS IS A TEST i = %d; Lenght(Temp) = %ld; Longueur d'un sms : %ld",i,strlen(temp),typeSMS);
+            printf("\n\n|THIS IS A TEST temp = \"%s\"",temp);
             SMSelementLire(&sms,temp);
-            SMSinserer(L,sms,i);
-            p += typeSMS;
+            SMSinserer(L,sms,pos);
+            // p += typeSMS + somme;
         }
+    
     }
     
     (*elt)->msg = L; 
@@ -164,32 +215,35 @@ void MSGelementLire(ELEMENT_MSG * elt) {
     heureLire(&(*elt)->heure_envoi);
 }
 
-void MSGelementAfficher(ELEMENT_MSG elt) {
+void MSGelementAfficherMSGcomplet(ELEMENT_MSG elt) {
     printf("\n--------");
     printf("\nAffichage de conversation est en cours... :");
     printf("%s ",elt->recepteur);
-    SMSlisteAfficher(elt->msg);
-    /* test *
+
     char ch[1225] = "";
     for (int i = 1; i <= SMSlisteTaille(elt->msg); i++) {
-        strncat(ch,elt->msg->elements[i]->text,elt->msg->elements[i]->taille + 1);
+        strncat(ch,elt->msg->elements[i]->text,elt->msg->elements[i]->taille + 1 + type_de_SMS(elt->msg->elements[i]->text));
     }
-    ch[strlen(ch)+1] = '\0';
-     test 
-    printf("\nMessage : %s",ch);
+    // ch[strlen(ch)+1] = '\0';
+    printf("\nMessage : -%s-",ch);
     printf("\n");
     
-    int typeSMS = -1;
+    int somme = 0;
+    for (int k = 1; k <= SMSlisteTaille(elt->msg); k++) {
+        somme += elt->msg->elements[k]->taille;
+    }
+
+    int typeSMS = 0;
     int i = 1; 
     do {
-        if (type_de_SMS(elt->msg->elements[i]->text) != -1) {
+        if (type_de_SMS(elt->msg->elements[i]->text) != 0) {
             typeSMS = 1;
         }
         i++;
-    } while (typeSMS == -1 && i <= SMSlisteTaille(elt->msg));
+    } while (typeSMS == 0 && i <= SMSlisteTaille(elt->msg));
     
     int nbrChar,nbrSMS = SMSlisteTaille(elt->msg);
-    if (typeSMS == -1) {
+    if (typeSMS == 0) {
         nbrChar = 153;
     } else {
         nbrChar = 67;
@@ -202,8 +256,21 @@ void MSGelementAfficher(ELEMENT_MSG elt) {
             nbrChar = 160;
         }
     }
-    printf("(%d) - %d/%d ",nbrSMS,elt->msg->elements[SMSlisteTaille(elt->msg)]->taille + (nbrChar * (nbrSMS - 1)),nbrChar*nbrSMS);
-    */
+    printf("(%d) - %d/%d ",nbrSMS,somme,nbrChar*nbrSMS);
+    heureAffichage(elt->heure_envoi);
+    printf(" | ");
+    dateAffichage(elt->date_envoi);
+    printf(" | Prix : %.3f",elt->prix);
+    printf("\n--------");
+}
+
+void MSGelementAfficherParSMS(ELEMENT_MSG elt) {
+    printf("\n--------");
+    printf("\nAffichage de conversation est en cours... :");
+    printf("%s ",elt->recepteur);
+    
+    SMSlisteAfficher(elt->msg);
+    
     int somme = 0;
     for (int k = 1; k <= SMSlisteTaille(elt->msg); k++) {
         somme += elt->msg->elements[k]->taille;
