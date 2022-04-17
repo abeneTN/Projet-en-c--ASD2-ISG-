@@ -218,11 +218,25 @@ void MSGlisteAfficher(LISTE_MSG L)
     if (L->lg == 0) {
         printf("\nAucun message trouvé");
     } else {
-        for (i = 1; i <= L->lg; i++)
-        {
-            MSGelementAfficher(p->info);
-            
-            p = p->suivant;
+        int typeAff = 0;
+        do {
+            printf("\nTaper 1 pour affichage par SMS, 2 pour affichage par message complet : ");
+            if (!scanf("%d",&typeAff)){
+                printf("\nRépeter SVP :)");
+            }
+        } while(typeAff != 1 && typeAff != 2);
+        if (typeAff == 1) {
+            for (i = 1; i <= L->lg; i++)
+            {
+                MSGelementAfficherParSMS(p->info);
+                p = p->suivant;
+            }
+        } else {
+            for (i = 1; i <= L->lg; i++)
+            {
+                MSGelementAfficherMSGcomplet(p->info);
+                p = p->suivant;
+            }
         }
     }
 }

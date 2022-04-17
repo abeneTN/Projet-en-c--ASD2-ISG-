@@ -124,8 +124,8 @@ int main(void) {
             if (bote_de_messagerie->lg == 0) {
                 printf("\nAucun message n'a jamais été envoyé");
             } else {
+                printf("\nVous avez %d messages..)",bote_de_messagerie->lg);
                 MSGlisteAfficher(bote_de_messagerie);
-                printf("\n(Taille de liste boite de messagerie LISTE_MSG : %d)",bote_de_messagerie->lg);
             }
             break;
         case 7 :
@@ -170,7 +170,18 @@ int main(void) {
                 printf("\nAucun message n'a jamais été envoyé");
             } else {
                 message = messageLePlusLong(bote_de_messagerie);
-                MSGelementAfficher(message);
+                int typeAff = 0;
+                do {
+                    printf("\nTaper 1 pour affichage par SMS, 2 pour affichage par message complet : ");
+                    if (!scanf("%d",&typeAff)){
+                        printf("\nRépeter SVP :)");
+                    }
+                } while(typeAff != 1 && typeAff != 2);
+                if (typeAff == 1) {
+                    MSGelementAfficherParSMS(message);
+                } else {
+                    MSGelementAfficherMSGcomplet(message);
+                }
                 // MSGelementDetruire(message);
             }
             break;
@@ -414,6 +425,9 @@ int main(void) {
                     plus += 3;
 
                     strcpy(smsTemp,line + plus);
+                    smsTemp[strlen(smsTemp)] = '\0';
+                    smsTemp[strcspn(smsTemp, "\n")] = 0;
+
                     size = strlen(smsTemp);
                     printf("\n-%s-",smsTemp);
 
@@ -473,6 +487,10 @@ int main(void) {
                             nb_car_a_copier = 0;
                             j = 0;
                             while(nb_car_a_copier < typeSMS && pq < strlen(smsTemp)) {
+                                if (smsTemp[pq + j] == '\0'){
+                                    printf("\nsmsTemp est finie");
+                                    break;
+                                }
                                 charFound = 0;
                                 c1 = (int)(smsTemp[j+pq]);
                                 c2 = (int)(smsTemp[j+pq+1]);
@@ -489,36 +507,17 @@ int main(void) {
                                 }
                                 if (charFound == 0) {
                                     strncat(temp,smsTemp + j + pq,1);
+                                    strcat(temp,"\0");
                                     j++;
                                     nb_car_a_copier++;
                                 }
                                 /* lezem kol caractere men smsTemp nchoufou speciale wala le 
                                 donc lezemni kol caracter naamel parcours mteouu al carSpe */
+                                
                             }
                         
                             printf("\n nb_car_a_copier = %d",nb_car_a_copier);
                             pq += nb_car_a_copier + nb_car_spe;
-                            /*
-                            while (i <= typeSMS && somme != typeSMS) {
-                                c1 = (int)(smsTemp[i]);
-                                c2 = (int)(smsTemp[i+1]);
-                                for (j = 0; j < strlen(carSpe);j+=2) {
-                                    k1 = (int)(carSpe[j]);
-                                    k2 = (int)(carSpe[j+1]);
-                                    if (c1 == k1 && c2 == k2){
-                                        strncat(temp,smsTemp + i,2);
-                                        i++;
-                                        somme++;
-                                    } else {
-                                        strncat(temp,smsTemp + i,1);
-                                        
-                                    }
-                                }
-                                i++;
-                            }
-                            i += somme + 1 + typeSMS;
-                            */
-                            // typeSMS += nb_car_a_copier;
                             temp[strlen(temp)] = '\0';
                             temp[strcspn(temp, "\n")] = 0;
                             printf("\n\n|THIS IS A TEST temp = \"%s\"",temp);

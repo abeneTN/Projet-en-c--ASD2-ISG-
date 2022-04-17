@@ -7,8 +7,11 @@
 /*MSG Lecture d'un élément */
 void MSGelementLire(ELEMENT_MSG *);
 
-/*MSG Affichage d'un élément */
-void MSGelementAfficher(ELEMENT_MSG);
+/*MSG Affichage d'un élément par SMS*/
+void MSGelementAfficherParSMS(ELEMENT_MSG);
+
+/*MSG Affichage d'un élément complet*/
+void MSGelementAfficherMSGcomplet(ELEMENT_MSG elt);
 
 /*MSG Affectation du 2eme argument dans le 1er qui est donc modifié et passé par
 adresse */
