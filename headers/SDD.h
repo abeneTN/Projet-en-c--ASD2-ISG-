@@ -3,7 +3,7 @@
 #define max 1000
 /* Déclaration de infoMot une structure pour suivre l'occurences des mots */
 
-typedef struct infoMotStruct{
+typedef struct{
     char mot[50];
     int occ;
 }infoMotStruct, *infoMot;

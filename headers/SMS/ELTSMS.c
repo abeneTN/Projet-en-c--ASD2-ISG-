@@ -27,7 +27,7 @@ void SMSelementCopier(ELEMENT_SMS * e1, ELEMENT_SMS e2) {
 
 void SMSelementLire(ELEMENT_SMS * elt, char * smsTemp) {
     size_t len = strlen(smsTemp);
-    (*elt)->text = (char *)malloc(len + 1);
+    (*elt)->text = calloc(1,len + 1);
     strncpy((*elt)->text,smsTemp,len);
     int type_de_sms_var = 0;
     type_de_sms_var = type_de_SMS((*elt)->text);

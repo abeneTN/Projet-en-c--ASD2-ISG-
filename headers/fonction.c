@@ -56,16 +56,15 @@ char * firstLetterUppercase(char ch[]) {
 
 char * smsTogether(LISTE_SMS L) {
     int somme = 0;
-    for (int k = 1; k <= SMSlisteTaille(L); k++) {
+    for (int k = 1; k <= SMSlisteTaille(L); k++) {  
         somme += strlen(L->elements[k]->text);
     }
     printf("\nNombre de caracters : %d",somme);
-    char * ch = calloc(1,somme + 1);
+    char * ch = calloc(L->lg,somme + 1);
     for (int i = 1; i <= SMSlisteTaille(L); i++) {
         strncat(ch,L->elements[i]->text,strlen(L->elements[i]->text));
     }
-    ch[somme + 2] = '\0';
-    return (char * ) ch;
+    return ch;
 }
 
 
@@ -104,7 +103,7 @@ int espacePos(char ch[]) {
 infoMot infoMotCreer(void) {
     printf("\nCreation d'une nouvelle case : ");
     infoMot m;
-    m = malloc(sizeof(infoMotStruct));
+    m =(infoMot)malloc(sizeof(infoMotStruct)+1);
     if (!m) {
         printf("\nErreur de memoire");
     } else {
@@ -116,9 +115,9 @@ infoMot infoMotCreer(void) {
 TABLEAU_COMPARISON comparaisonTableauCreer(void) {
     TABLEAU_COMPARISON T;
     T = (TABLEAU_COMPARISON)malloc(sizeof(structureListeComp));
-    for(int i = 1; i<= max;i++) {
-        infoMot T = (infoMot)malloc(sizeof(infoMotStruct));
-    }
+    // for(int i = 1; i<= max;i++) {
+    //     infoMot T = (infoMot)malloc(sizeof(infoMotStruct));
+    // }
     if (!T) {
         printf("\nProbleme de memoire") ;
         exit(0) ;

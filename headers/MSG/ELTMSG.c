@@ -136,7 +136,6 @@ void MSGelementLire(ELEMENT_MSG * elt) {
     }
     // printf("\nL'Operation : %ld / %ld", strlen(smsTemp), typeSMS);
     c = (int)(c);
-    int p = 0;
     char temp[typeSMS + 1];
     if(c == 1) {
         sms = SMSelementCreer();
@@ -248,7 +247,6 @@ void MSGelementAfficherMSGcomplet(ELEMENT_MSG elt) {
     } else {
         nbrChar = 67;
     }
-    double c = ceil(strlen(ch) / nbrChar) + 1;
     if (nbrSMS == 1) {
         if (nbrChar == 67) {
             nbrChar = 70;
@@ -273,14 +271,16 @@ void MSGelementAfficherParSMS(ELEMENT_MSG elt) {
     
     int somme = 0;
     for (int k = 1; k <= SMSlisteTaille(elt->msg); k++) {
-        somme += elt->msg->elements[k]->taille;
+        // somme += elt->msg->elements[k]->taille;
+        somme += strlen(elt->msg->elements[k]->text);
     }
     printf("\nNombre de caracters : %d",somme);
-    char ch[somme + 1];
+    // char ch[somme + 1];
+    char *ch = calloc(1,somme + 2); //+2 because I need another byte for space character unigrammes/bigrammes 
     for (int i = 1; i <= SMSlisteTaille(elt->msg); i++) {
         strncat(ch,elt->msg->elements[i]->text,elt->msg->elements[i]->taille + 1);
     }
-    ch[somme + 2] = '\0';
+    // ch[somme + 2] = '\0';
 
     int nbrChar,type_de_sms_var = 0;
     type_de_sms_var = type_de_SMS(ch);
@@ -296,12 +296,13 @@ void MSGelementAfficherParSMS(ELEMENT_MSG elt) {
         }
     }
     printf("\n(%d), %d/%d ",SMSlisteTaille(elt->msg),somme,nbrChar * SMSlisteTaille(elt->msg));
-
     heureAffichage(elt->heure_envoi);
     printf(" | ");
     dateAffichage(elt->date_envoi);
     printf(" | Prix : %.3f",elt->prix);
     printf("\n--------");
+
+    free(ch);
 }
 
 int MSGelementComparer(ELEMENT_MSG e1, ELEMENT_MSG e2) {

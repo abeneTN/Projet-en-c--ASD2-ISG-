@@ -124,8 +124,8 @@ int main(void) {
             if (bote_de_messagerie->lg == 0) {
                 printf("\nAucun message n'a jamais été envoyé");
             } else {
-                printf("\nVous avez %d messages..)",bote_de_messagerie->lg);
                 MSGlisteAfficher(bote_de_messagerie);
+                printf("\n(Taille de liste boite de messagerie LISTE_MSG : %d)",bote_de_messagerie->lg);
             }
             break;
         case 7 :
@@ -180,7 +180,7 @@ int main(void) {
                 if (typeAff == 1) {
                     MSGelementAfficherParSMS(message);
                 } else {
-                    MSGelementAfficherMSGcomplet(message);
+                        MSGelementAfficherMSGcomplet(message);
                 }
                 // MSGelementDetruire(message);
             }
@@ -190,12 +190,14 @@ int main(void) {
             scanf("%d",&m);
             p = unigrammes(bote_de_messagerie,m);
             PileAfficher(p);
+            PileDetruire(p);
             break;
         case 10:
             printf("\nSasir m : ");
             scanf("%d",&m);
             pb = bigrammes(bote_de_messagerie,m);
             PileAfficher(pb);
+            PileDetruire(pb);
             break;
         case 11 :
             // system("cls");
@@ -470,6 +472,7 @@ int main(void) {
                     c = (int)(c);
                     
                     char temp[typeSMS + 10];
+                    // strncpy(temp,"this is nothing",16);
                     if(c == 1) {
                         sms = SMSelementCreer();
                         SMSelementLire(&sms,smsTemp);
@@ -513,7 +516,6 @@ int main(void) {
                                 }
                                 /* lezem kol caractere men smsTemp nchoufou speciale wala le 
                                 donc lezemni kol caracter naamel parcours mteouu al carSpe */
-                                
                             }
                         
                             printf("\n nb_car_a_copier = %d",nb_car_a_copier);
@@ -686,7 +688,6 @@ Pile unigrammes(LISTE_MSG L,int M) {
     printf("\nCA COMMENCE !");
     char * motToken;
     char * message;
-    char mott[30];
     NOEUD_MSG p;
     //Tableau de comparaison
     TABLEAU_COMPARISON T = comparaisonTableauCreer();
@@ -696,7 +697,8 @@ Pile unigrammes(LISTE_MSG L,int M) {
     do {
         printf("\nhne dkhalet fel do loula");
         message = smsTogether(p->info->msg);
-        strcat(message," \0");
+        strncat(message," ",2);
+        message[strcspn(message, "\n")] = 0;
         printf("\n message complet : -%s-",message);
         motToken = strtok(message," ");
         while(motToken != NULL) {
@@ -724,30 +726,32 @@ Pile unigrammes(LISTE_MSG L,int M) {
         };
         printf("\n\n\nhne wfet do loula bch naffichi tableau tawa");
         p = p->suivant;
+        free(message);
     } while(p);
 
     trieeTableau(T,T->lg);
     afficherTableau(T,T->lg);
 
-    Pile P = PileCreer();
+    Pile v = PileCreer();
     ELEMENT_PILE e;
-
     for (int i = 1; i <= M; i++) {
         e = elementCreer_PILE();
         memmove(e->texte,T->elements[i]->mot,strlen(T->elements[i]->mot) + 1); 
-        Empiler(P,e);
+        Empiler(v,e);
     }
+
+    for (int i = 1; i<= T->lg; i++){
+        free(T->elements[i]);
+    }
+    free(T);
 
     Pile pTemp = PileCreer();
     for (int j = 1; j <= M; j++) {
-        e = elementCreer_PILE();
-        e = Depiler(P);
+        e = Depiler(v);
         Empiler(pTemp,e);
     }
 
-    PileDetruire(P);
-    free(T);
-    free(mmot);
+    PileDetruire(v);
 
     return pTemp;
 }
@@ -757,7 +761,6 @@ Pile bigrammes(LISTE_MSG L, int M) {
     char * motToken1; char * motToken2;
     char doubleToken[30] ;
     char * message;
-    char mott[30];
     NOEUD_MSG h;
     //Tableau de comparaison
     TABLEAU_COMPARISON T2 = comparaisonTableauCreer();
@@ -765,7 +768,6 @@ Pile bigrammes(LISTE_MSG L, int M) {
     int iT = 0, trouveT; /* Indice utilisé pour le recherche d'un mot dans T*/
     h = L->tete;
 
-    int nbMot = 2;
     size_t k,k_stop;
     do {
         message = smsTogether(h->info->msg);
@@ -776,7 +778,7 @@ Pile bigrammes(LISTE_MSG L, int M) {
         message[strcspn(message, "\n")] = 0;
         printf("\nmessage complet : -%s- -%ld-",message,strlen(message));
         k_stop = strlen(message) - 1;
-        printf("\n\n");
+        // printf("\n\n");
         motToken1 = strtok(message," ");
         strncpy(doubleToken,motToken1,strlen(motToken1)+1);
 
@@ -790,10 +792,10 @@ Pile bigrammes(LISTE_MSG L, int M) {
         k = 0;
         k += strlen(doubleToken);
         while(k <= k_stop) {
-            printf("\nToken 1 : -%s-",motToken1);
-            printf("\nToken 2 : -%s-",motToken2);
-            printf("\ndouble Token : -%s-",doubleToken);
-            printf("\nk = %ld",k);
+            // printf("\nToken 1 : -%s-",motToken1);
+            // printf("\nToken 2x : -%s-",motToken2);
+            // printf("\ndouble Token : -%s-",doubleToken);
+            // printf("\nk = %ld",k);
             if (motJamaisTraite(doubleToken,T2,T2->lg) == 1) {
                 //Ajout dans la tableau de comparaison
                 mmot2 = infoMotCreer();
@@ -813,21 +815,21 @@ Pile bigrammes(LISTE_MSG L, int M) {
             }
             motToken1 = motToken2; 
             if(k == k_stop) {
-                printf("STOOP");
+                // printf("STOOP");
                 break;
             } else {
                 motToken2 = strtok(NULL," ");
-                printf("\n motToken2 = -%s-",motToken2);
+                // printf("\n motToken2 = -%s-",motToken2);
                 k += strlen(motToken2) + 1;
             }
-            printf("\n -%s-",motToken2);
+            // printf("\n -%s-",motToken2);
             strncpy(doubleToken,motToken1,strlen(motToken1)+1);
             strncat(doubleToken," \0",2);
             strncat(doubleToken,motToken2,strlen(motToken2)+1);
-            printf("\nK = %ld",k);
+            // printf("\nK = %ld",k);
         };
-        free(message);
         h = h->suivant;
+        free(message);
     } while(h);
 
     trieeTableau(T2,T2->lg);
@@ -843,17 +845,19 @@ Pile bigrammes(LISTE_MSG L, int M) {
         Empiler(p,e);
     }
 
+    for (int i = 1; i<= T2->lg; i++){
+        free(T2->elements[i]);
+    }
+    free(T2);
     // tableauDetruire(T,T->lg);
 
     Pile pTemp = PileCreer();
     for (int j = 1; j <= M; j++) {
-        e = elementCreer_PILE();
         e = Depiler(p);
         Empiler(pTemp,e);
     }
 
     PileDetruire(p);
-    // free(T);
     // free(mmot2);
 
     return pTemp;
