@@ -12,11 +12,9 @@ LISTE_SMS SMSlisteCreer(void)
     if(!L) {
         printf("\nProbleme de memoire") ;
         exit(0) ;
-    } else {
-        printf("\n(Une nouvelle conversation a ete cree)");
     }
-  L->lg = 0;
-  return(L);
+    L->lg = 0;
+    return(L);
 }
 
 

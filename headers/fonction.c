@@ -59,8 +59,7 @@ char * smsTogether(LISTE_SMS L) {
     for (int k = 1; k <= SMSlisteTaille(L); k++) {  
         somme += strlen(L->elements[k]->text);
     }
-    printf("\nNombre de caracters : %d",somme);
-    char * ch = calloc(L->lg,somme + 1);
+    char * ch = calloc(L->lg,somme + 100);
     for (int i = 1; i <= SMSlisteTaille(L); i++) {
         strncat(ch,L->elements[i]->text,strlen(L->elements[i]->text));
     }
@@ -101,14 +100,11 @@ int espacePos(char ch[]) {
 
 
 infoMot infoMotCreer(void) {
-    printf("\nCreation d'une nouvelle case : ");
     infoMot m;
     m =(infoMot)malloc(sizeof(infoMotStruct)+1);
     if (!m) {
         printf("\nErreur de memoire");
-    } else {
-        printf("succce");
-    }
+    } 
     return m;
 }
 
@@ -121,20 +117,14 @@ TABLEAU_COMPARISON comparaisonTableauCreer(void) {
     if (!T) {
         printf("\nProbleme de memoire") ;
         exit(0) ;
-    } else {
-        printf("\n(Tableau crée)");
-    }
+    } 
     T->lg = 0;
-    printf("\nTaille initialisé : %d",T->lg);
     return T;
 }
 
 void insererTableau(TABLEAU_COMPARISON T, infoMot m) {
-    printf("\n\n\nAjout dans le tableau est en cours..");
     T->lg++;
-    printf("\nT->lg = %d",T->lg);
     T->elements[T->lg] = m;
-    printf("; Mot ajouté dans le tableau: -%s-\n\n",T->elements[T->lg]->mot);
 }
 
 void afficherTableau(TABLEAU_COMPARISON T, int n) {
